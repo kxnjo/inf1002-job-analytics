@@ -21,6 +21,7 @@ class APIRetryCountException(Exception):
 def iterate_and_join(input_list):
     return ':'.join(str(x) for x in input_list)
 
+
 def extract_cookies_and_header(browser):
     # get necessary authentication cookies from selenium and pass to requests
     cookies = browser.get_cookies()
@@ -36,6 +37,8 @@ def extract_cookies_and_header(browser):
         'cookies': cookies_list,
         'header': header
     }
+
+
 def get_skills(job_urn, requests_cookies, header):
     tries = 0
 
@@ -69,6 +72,7 @@ def get_skills(job_urn, requests_cookies, header):
             sleep(3)
         else:
             raise APIRetryCountException
+
 
 def get_job_info(job_urn, requests_cookies, header):
     # for debug
