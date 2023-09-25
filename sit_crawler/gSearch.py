@@ -38,17 +38,22 @@ def make_request(payload):
 
     return response.json()
 
-def find_school(response, search = "SIT"):
+def find_school(school = "SIT", search = "software engineering"):
     """
     function searches and URL for result that's of most relevance to use case (SIT students)
 
     :response = search listing object in JSON
     :return = URL for specified search
     """
+    
+    payload = build_payload(f"%{school} %{search}") # build the payload
+    response = make_request(payload)["items"] # get list of google search responses in JSON
+
+    # filter for school search (make sure that it is the right school)
     for item in response:
         resultList = [item["title"], item["displayLink"], item["snippet"]]
         for x in resultList:
-            if search in x:
+            if school in x:
                 return item["link"]
     
     return "link not found"
@@ -57,4 +62,4 @@ def find_school(response, search = "SIT"):
 # example prints
 response = make_request(build_payload('SIT Software Engineering'))["items"]
 # search for school information
-print(find_school(response))
+print(find_school())
