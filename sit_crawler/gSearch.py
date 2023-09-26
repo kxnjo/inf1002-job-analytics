@@ -78,7 +78,7 @@ def find_module(moduleName, school = "Singapore Institute of Technology"):
     moduleURL = "https://www.singaporetech.edu.sg/modules/"
 
      # build the payload
-    response = make_request(f'{moduleName} module', school) # get list of google search responses in JSON
+    response = make_request(f'{moduleName} module', school) # get dictionary of google search responses in JSON
 
     # check if the response is working well
     if response["items"]:
