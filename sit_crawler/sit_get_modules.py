@@ -42,8 +42,7 @@ def main():
         "Link": []
     }
     
-    # Click into each course and extract the modules, write into CSV format
-    # Note: API calls for Google Search limited to only 100 per day
+    # Click into each course and store module names
     for c in chosen_courses:
         course_name = all_courses[c]
         try:
@@ -61,10 +60,8 @@ def main():
 
         driver.back()
 
-
-    # For each module:
-    # Using gSearch (Google Search API), search for the module links and write into dataframe
-    # Navigate into module link and extract the module description
+    # For each module, use Google Search API to search for module links and write into csv
+    # API limited to 100 calls a day
     for course_name, course_data in courses.items():
         for mod in course_data["Module Name"]:
             link = find_module(mod)
