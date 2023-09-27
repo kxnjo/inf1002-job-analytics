@@ -85,7 +85,7 @@ def find_module(moduleName, school = "Singapore Institute of Technology"):
     if response["items"]:
         itemsResponse = response["items"].copy()
     else:
-        return "search not found"
+        return None
 
     # filter for school search (make sure that it is the right school)
     for item in itemsResponse:
