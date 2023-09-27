@@ -4,6 +4,11 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support.expected_conditions import presence_of_element_located
 from selenium.webdriver.support import expected_conditions as EC
+import pandas as pd
+
+# Our own modules
+from gSearch import find_module
+from get_module_description import get_description
 
 #TODO: Create a class for driver instead
 
@@ -13,10 +18,7 @@ driver = webdriver.Chrome(options=options)
 
 def main():
     # Enter SIT website
-    try:
-        driver.get("https://www.singaporetech.edu.sg/undergraduate-programmes")
-    except:
-        print(f"Unable to enter SIT Undergraduate Programmes page")
+    if not navigate_link("https://www.singaporetech.edu.sg/undergraduate-programmes"):
         driver.quit()
         return
     
@@ -33,29 +35,54 @@ def main():
     chosen_courses = request_user_input(all_courses)
 
 
+    # Storing and formatting to export as csv later
+    courses = {}
+    data = {
+        "Module Name": [],
+        "Link": []
+    }
+    
     # Click into each course and extract the modules, write into CSV format
+    # Note: API calls for Google Search limited to only 100 per day
     for c in chosen_courses:
+        course_name = all_courses[c]
         try:
-            click_course(all_courses[c])
+            click_course(course_name)
         except Exception as e:
             print(f"Unable to enter course page of {c}:{all_courses[c]}, Error:{e}")
             return
         
         try:
             all_mods = get_modules()
+            courses[course_name] = data.copy()
+            courses[course_name]["Module Name"].extend(all_mods)
         except Exception as e:
             print(f"Unable to get modules of {c}:{all_courses[c]}, Error:{e}")
 
-        with open(f"data/{all_courses[c]}.csv", "w") as f:
-            f.write("Module Name" + "\n")
-            for mod in all_mods:
-                f.write(mod + "\n")
-
         driver.back()
-    
+
+
+    # For each module:
+    # Using gSearch (Google Search API), search for the module links and write into dataframe
+    # Navigate into module link and extract the module description
+    for course_name, course_data in courses.items():
+        for mod in course_data["Module Name"]:
+            link = find_module(mod)
+            course_data["Link"].append(link)
+        data_out = pd.DataFrame(course_data)
+        data_out.to_csv(f"data/{course_name}.csv")
 
     driver.quit()
 
+
+def navigate_link(link):
+    try:
+        driver.get(link)
+    except:
+        print(f"Unable to enter SIT Undergraduate Programmes page")
+        return False
+    return True
+    
 
 def get_all_courses():
     courses = driver.find_elements(By.CLASS_NAME, 'course-card__title')
@@ -95,7 +122,7 @@ def clean_user_input(user_input, max_number):
     for course in course_numbers:
         if course <= 0 or course > max_number:
             return False
-        
+
     return True
 
 

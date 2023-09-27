@@ -5,6 +5,7 @@ import pandas as pd
 API_KEY = 'AIzaSyDH6gfB_UlGeEtqXt7ZiHK7TdYydSTQWac'
 SEARCH_ENGINE_ID = '718bdbf89bb93481f'
 
+
 def build_payload(query, **params):
     """
     :param query = Search term
@@ -78,7 +79,7 @@ def find_module(moduleName, school = "Singapore Institute of Technology"):
     moduleURL = "https://www.singaporetech.edu.sg/modules/"
 
      # build the payload
-    response = make_request(f'{moduleName} module', school) # get list of google search responses in JSON
+    response = make_request(f'{moduleName} module', school) # get dictionary of google search responses in JSON
 
     # check if the response is working well
     if response["items"]:
@@ -90,9 +91,9 @@ def find_module(moduleName, school = "Singapore Institute of Technology"):
     for item in itemsResponse:
         if moduleURL in item["link"]:
             return item["link"]
-    return "module link not found"
+    return None
 
 
 # example search
 # print(find_course("software engineering"))
-print(find_module("programming fundamentals"))
+# print(find_module("programming fundamentals"))
