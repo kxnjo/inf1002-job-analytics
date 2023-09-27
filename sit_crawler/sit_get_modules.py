@@ -8,7 +8,6 @@ import pandas as pd
 
 # Our own modules
 from gSearch import find_module
-from get_module_description import get_description
 
 #TODO: Create a class for driver instead
 
@@ -53,6 +52,7 @@ def main():
         
         try:
             all_mods = get_modules()
+            print(all_mods)
             courses[course_name] = data.copy()
             courses[course_name]["Module Name"].extend(all_mods)
         except Exception as e:
@@ -62,12 +62,13 @@ def main():
 
     # For each module, use Google Search API to search for module links and write into csv
     # API limited to 100 calls a day
+
     for course_name, course_data in courses.items():
         for mod in course_data["Module Name"]:
             link = find_module(mod)
             course_data["Link"].append(link)
         data_out = pd.DataFrame(course_data)
-        data_out.to_csv(f"data/{course_name}.csv")
+        data_out.to_csv(f"data/{course_name}.csv", index=False)
 
     driver.quit()
 
@@ -76,7 +77,7 @@ def navigate_link(link):
     try:
         driver.get(link)
     except:
-        print(f"Unable to enter SIT Undergraduate Programmes page")
+        print(f"Unable to enter {link}")
         return False
     return True
     
@@ -142,7 +143,7 @@ def get_text(modules):
     clean_modules = []
     for module in modules:
         data = module.find_elements(By.TAG_NAME, 'td')
-        data_text = data[0].get_attribute("textContent").strip()
+        data_text = data[0].get_attribute("textContent").strip().replace("\xa0", " ")
         clean_modules.append(data_text)
     return clean_modules
 
