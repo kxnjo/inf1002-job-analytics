@@ -3,7 +3,6 @@ import requests
 import csv
 import pandas as pd
 
-#TODO: change this hardcoded value to use all data files in certain filepath instead
 filepaths = ["Information and Communications Technology (Information Security).csv", "Information and Communications Technology (Software Engineering).csv"]
 
 def main():
@@ -62,9 +61,11 @@ def get_description(url):
 
     return [title, desc]
 
+
 def module_match(mod_name, description_page_name):
-    clean_mod_name1 = mod_name.replace(" ", "").replace("-", "").replace("Organization", "Organisation")
-    clean_mod_name2 = description_page_name.replace(" ", "").replace("-", "").replace("Organization", "Organisation")
+    # Data cleaning on mod name, including some common US-UK English differences
+    clean_mod_name1 = mod_name.replace(" ", "").replace("-", "").replace("iz", "is").replace("ze", "se")
+    clean_mod_name2 = description_page_name.replace(" ", "").replace("-", "").replace("iz", "is").replace("ze", "se")
 
     if clean_mod_name1.lower() == clean_mod_name2.lower():
         return True

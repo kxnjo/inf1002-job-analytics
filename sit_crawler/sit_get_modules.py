@@ -4,13 +4,14 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support.expected_conditions import presence_of_element_located
 from selenium.webdriver.support import expected_conditions as EC
+from copy import deepcopy
 import pandas as pd
 
 # Our own modules
-from gSearch import find_module
+import gSearch
 
-#TODO: Create a class for driver instead
 
+# Create an instance of Chrome Webdriver
 options = webdriver.ChromeOptions()
 options.add_argument("--headless")
 driver = webdriver.Chrome(options=options)
@@ -31,18 +32,18 @@ def main():
     # Show courses that are available and request user input (choose courses)
     for index, course_name in all_courses.items():
         print(f"{index}: {course_name}")
-    chosen_courses = request_user_input(all_courses)
+    user_chosen_courses = request_user_input(all_courses)
 
 
-    # Storing and formatting to export as csv later
+    # Storing and formatting course information
     courses = {}
     data = {
         "Module Name": [],
         "Link": []
     }
     
-    # Click into each course and store module names
-    for c in chosen_courses:
+    # Click into each course from the programmes page
+    for c in user_chosen_courses:
         course_name = all_courses[c]
         try:
             click_course(course_name)
@@ -50,22 +51,21 @@ def main():
             print(f"Unable to enter course page of {c}:{all_courses[c]}, Error:{e}")
             return
         
+        # Retrieve all modules listed in the degree programme
         try:
             all_mods = get_modules()
-            print(all_mods)
-            courses[course_name] = data.copy()
+            courses[course_name] = deepcopy(data)
             courses[course_name]["Module Name"].extend(all_mods)
+
         except Exception as e:
             print(f"Unable to get modules of {c}:{all_courses[c]}, Error:{e}")
 
         driver.back()
 
-    # For each module, use Google Search API to search for module links and write into csv
-    # API limited to 100 calls a day
-
+    # For each module, use Google Search API to search for the top relevant module link and write into csv
     for course_name, course_data in courses.items():
         for mod in course_data["Module Name"]:
-            link = find_module(mod)
+            link = gSearch.find_module(mod)
             course_data["Link"].append(link)
         data_out = pd.DataFrame(course_data)
         data_out.to_csv(f"data/{course_name}.csv", index=False)
@@ -102,6 +102,8 @@ def click_course(course):
 def request_user_input(all_courses):
     print("\nPlease enter the indexes of your chosen courses separated by commas (e.g. '1,4,7'). Alternatively, you can also enter only one course.")
     user_input = input("Choose courses:")
+
+    # Re-prompt user until we get a valid input
     while not clean_user_input(user_input, len(all_courses)):
         user_input = input("Invalid input. Format is comma separated values e.g. '1,4,7' or '1'. Choose courses:")
 
@@ -148,6 +150,6 @@ def get_text(modules):
     return clean_modules
 
 
-start_time = time.time()
+#start_time = time.time()
 main()
 #print("--- %s seconds ---" % (time.time() - start_time))
