@@ -26,7 +26,7 @@ def main():
 
         # Csv file of Title & Skills
         df = df[['Job Title','Skills']]
-        df.to_csv("cleaned_data/extracted/title_skill/title_skill_" + non_extracted_file[x] + ".csv")
+        df.to_csv("cleaned_data/extracted/title_skill/title_skill_" + non_extracted_file[x])
 
         # Separate all skill into single row
         df["Skills"] = df["Skills"].str.split(',')
@@ -37,7 +37,7 @@ def main():
         unique_skills = df.pivot_table(columns=['Skills'], aggfunc='size')
 
         # Csv file of Skills & Count without duplicates
-        unique_skills.to_csv("cleaned_data/extracted/skills/skills_" + non_extracted_file[x] + ".csv")
+        unique_skills.to_csv("cleaned_data/extracted/skills/skills_" + non_extracted_file[x])
 
         print(non_extracted_file[x])
 
