@@ -30,7 +30,7 @@ def main():
         data = pd.read_csv(f"data/{filepath}")
         data["Title"] = module_title
         data["Description"] = module_desc
-        data.to_csv(f"data/{filepath}", index=False)
+        data.to_csv(f"data/{filepath}", index=False, encoding="utf-8")
 
 
 def get_description(url):
@@ -42,11 +42,19 @@ def get_description(url):
 
     # Search for module description
     try:
-        desc_element = module.findChild("p")
+        desc_elements = module.findChildren("p")
         # Exception cases that are styled differently on SIT website
-        if not desc_element:
-            desc_element = module.find("div", class_="row--top-md")
-        desc = desc_element.getText().strip()
+        if not desc_elements:
+            desc_elements = module.findAll("div", class_="row--top-md")
+
+        # Save descriptions styled in multiple paragraphs into 1 paragraph.
+        desc_text = []
+        for text in desc_elements:
+            desc = text.getText().strip()
+            desc_text.append(desc)
+        desc = " ".join(desc_text)
+        print(desc)
+        print("\n")
 
     except Exception as e:
         print(f"Error getting description from {url}, {e}")
