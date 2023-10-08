@@ -11,7 +11,13 @@ class GoogleSearchLimit(Exception):
     pass
 
 
+class NewDetails(Exception):
+    "You have hit the limit for the day. Try again tomorrow."
+    pass
+
+
 # = = = LOAD REQUEST COUNTER = = =
+# TODO: UPDATE API KEY AND SEARCH ENGINE IF YOU'RE USING YOUR OWN.
 today = date.today()
 data = {
     "api_key": "AIzaSyDH6gfB_UlGeEtqXt7ZiHK7TdYydSTQWac",
@@ -22,22 +28,39 @@ file_path = "./data/gSearch_counter.json"
 
 try:
     with open(file_path, "r") as credentials:
-        data = json.load(credentials)
-        if data["date"][str(today)] is None:
+        file_data = json.load(credentials)
+        # use file_data[0] because current key to use should ALWAYS be in the first index
+        for i in range(len(file_data)):
+            if data["api_key"] == file_data[i]["api_key"]:
+                current_data = file_data.pop(i)
+                file_data.insert(0, current_data)
+
+        if data["api_key"] != file_data[0]["api_key"]:  # different API key input
+            print("different API key!!")
+            raise NewDetails
+        elif file_data[0]["date"][str(today)] is None:  # its a new day, no count
             print(f"today's count does not exist!")
             update_count(0)
 
 except FileNotFoundError:
-    print("JSON file not found. Creating a new one.")
+    print("JSON file or API key not found. Creating a new one.")
     # Writing to sample.json
     with open(file_path, "w") as credentials:
-        credentials.write(json.dumps(data, indent=4))
+        credentials.write(json.dumps([data], indent=4))
+except NewDetails:
+    print("API KEY does not match, adding new API count")
+    file_data.insert(0, data)
+    with open(file_path, "w") as credentials:
+        credentials.write(json.dumps(file_data, indent=4))
+else:
+    current_data = file_data[0]  # update current data with current count
+    print("\n\n", current_data)
 
 
 def update_count(newCount):
-    data["date"][str(today)] = newCount
+    file_data[0]["date"][str(today)] = newCount
     with open(file_path, "w") as credentials:
-        credentials.write(json.dumps(data, indent=4))
+        credentials.write(json.dumps(file_data, indent=4))
 
 
 # = = = GOOGLE SEARCHES REQUEST = = =
@@ -49,7 +72,11 @@ def build_payload(query, **params):
     :return = dictionary containing API request params
     """
 
-    payload = {"key": data["api_key"], "q": query, "cx": data["search_engine"]}
+    payload = {
+        "key": current_data["api_key"],
+        "q": query,
+        "cx": current_data["search_engine"],
+    }
 
     payload.update(params)
     return payload
@@ -63,7 +90,7 @@ def make_request(search, school):
     :return = JSON response from Google Search API
     """
     try:
-        curr_counter = int(data["date"][str(today)])
+        curr_counter = int(current_data["date"][str(today)])
         if curr_counter == 100:
             raise GoogleSearchLimit
         elif curr_counter == 50:
@@ -76,7 +103,7 @@ def make_request(search, school):
             )
 
         # add request count
-        update_count(int(data["date"][str(today)]) + 1)
+        update_count(int(current_data["date"][str(today)]) + 1)
 
         payload = build_payload(f"{search} {school}")
         response = requests.get(
@@ -151,5 +178,5 @@ def find_module(moduleName, school="Singapore Institute of Technology"):
 
 
 # example search
-print(find_course("software engineering"))
+# print(find_course("software engineering"))
 # print(find_module("programming fundamentals"))
