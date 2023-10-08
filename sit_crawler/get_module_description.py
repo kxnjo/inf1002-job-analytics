@@ -53,8 +53,6 @@ def get_description(url):
             desc = text.getText().strip()
             desc_text.append(desc)
         desc = " ".join(desc_text)
-        print(desc)
-        print("\n")
 
     except Exception as e:
         print(f"Error getting description from {url}, {e}")
