@@ -16,6 +16,12 @@ class NewDetails(Exception):
     pass
 
 
+def update_count(newCount):
+    file_data[0]["date"][str(today)] = newCount
+    with open(file_path, "w") as credentials:
+        credentials.write(json.dumps(file_data, indent=4))
+
+
 # = = = LOAD REQUEST COUNTER = = =
 # TODO: UPDATE API KEY AND SEARCH ENGINE IF YOU'RE USING YOUR OWN.
 today = date.today()
@@ -38,7 +44,7 @@ try:
         if data["api_key"] != file_data[0]["api_key"]:  # different API key input
             print("different API key!!")
             raise NewDetails
-        elif file_data[0]["date"][str(today)] is None:  # its a new day, no count
+        elif str(today) not in file_data[0]["date"]:  # its a new day, no count
             print(f"today's count does not exist!")
             update_count(0)
 
@@ -55,12 +61,6 @@ except NewDetails:
 else:
     current_data = file_data[0]  # update current data with current count
     print("\n\n", current_data)
-
-
-def update_count(newCount):
-    file_data[0]["date"][str(today)] = newCount
-    with open(file_path, "w") as credentials:
-        credentials.write(json.dumps(file_data, indent=4))
 
 
 # = = = GOOGLE SEARCHES REQUEST = = =
