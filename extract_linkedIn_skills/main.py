@@ -22,11 +22,10 @@ def main():
         df = pd.read_csv(path+non_extracted_file[x])
 
         # To extract Skills for each job crawled
-        df["Skills"] = df.apply(lambda row: extract_api(row["Job description"]), axis=1)
+        df["Extracted Skills"] = df.apply(lambda row: extract_api(row["Job description"]), axis=1)
 
-        # Csv file of Title & Skills
-        df = df[['Job Title','Skills']]
-        df.to_csv("cleaned_data/extracted/title_skill/title_skill_" + non_extracted_file[x] + ".csv")
+        # Append skills extracted from description
+        df.to_csv("cleaned_data/extracted/title_skill/appended_skill_" + non_extracted_file[x])
 
         # Separate all skill into single row
         df["Skills"] = df["Skills"].str.split(',')
@@ -37,7 +36,7 @@ def main():
         unique_skills = df.pivot_table(columns=['Skills'], aggfunc='size')
 
         # Csv file of Skills & Count without duplicates
-        unique_skills.to_csv("cleaned_data/extracted/skills/skills_" + non_extracted_file[x] + ".csv")
+        unique_skills.to_csv("cleaned_data/extracted/skills/skills_" + non_extracted_file[x])
 
         print(non_extracted_file[x])
 
