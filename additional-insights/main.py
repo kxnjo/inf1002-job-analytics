@@ -6,6 +6,7 @@ import os
 import glob
 
 # uses 2 csv files - the cleaned jobs csv files (IS and SE) with the lightcast skills appended
+# currently reads these 2 files from the same directory as the script
 # most popular industries can put in the main app, additional insights can be separate
 
 # most popular industries
