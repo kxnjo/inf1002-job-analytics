@@ -40,5 +40,5 @@ if len(options) != 0:
 words = sorted(words, key=lambda x: x['count'], reverse=True)
 # word cloud
 return_obj = wordcloud.visualize(words, tooltip_data_fields={
-    'text': 'Skill', 'value':'No. of skills'
+    'text': 'Skill', 'value':'Total skill count'
 }, padding=2, max_words = 50, palette='Dark2', per_word_coloring=False)
