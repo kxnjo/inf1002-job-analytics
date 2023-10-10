@@ -1,0 +1,21 @@
+
+import pandas as pd
+import streamlit as st
+import plotly.express as px
+
+st.set_page_config(
+    page_title='LinkedIn Job Skills', 
+    page_icon='🧑‍💻', 
+    layout='wide'
+    )
+
+st.title('🧑‍💻 LinkedIn Job Skills')
+st.sidebar.selectbox(label='Choose a Degree', options=('ICT(IS)', 'ICT(SE)'), placeholder='Choose a Degree')
+
+try:
+
+    st.selectbox(label='Choose Type of Skill', options=('Soft Skills', 'Hard Skills', 'Both'), placeholder='Type of Skill')
+
+
+except Exception:
+    st.write('Oops, no match found')
