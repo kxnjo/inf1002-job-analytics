@@ -12,7 +12,7 @@ import glob
 # most popular industries
 def industries_stats(jobs):
     # remove duplicates, exclude jobs where industries empty and then split values
-    df = jobs.dropna(subset=['Industries']).drop_duplicates(subset=['Job URN'])
+    df = jobs.dropna(subset=['Industries'])
     df['Industries'] = df['Industries'].str.split(':')
     industry_list = df.explode('Industries')['Industries']
 
@@ -30,7 +30,7 @@ def industries_stats(jobs):
 # average skills identified per job (lightcast vs linkedin)
 def skills_stats(jobs):
     # drop skill rows that are duplicates across IS and SE or do not have any skills identified by linkedin
-    job_skills = jobs.drop_duplicates(subset=['Job URN']).dropna(subset=['Skills'])
+    job_skills = jobs.dropna(subset=['Skills'])
 
     lightcast_skill_count = 0
     linkedin_skill_count = 0
@@ -67,6 +67,19 @@ def company_stats(jobs):
         x=alt.X('count:Q', title='Number of job listings')
     ))
 
+
+def job_competition_stats(jobs):
+    # total job applications per company
+    applicants_per_company = jobs.groupby(by='Company Name', as_index=False).sum('Applicants')[['Company Name', 'Applicants']]
+    # total job listings per company
+    jobs_per_company = (jobs.groupby(by='Company Name', as_index=True).size().reset_index().sort_values(0)
+                        .rename(columns={0: 'Total job listings'}))
+
+    # merge dataframes to get total job listings and applicants per company
+    applicants_vs_jobs = jobs_per_company.merge(applicants_per_company, how='inner', on=['Company Name'])
+    applicants_vs_jobs['Average applicants per job'] = applicants_vs_jobs['Applicants'] / applicants_vs_jobs['Total job listings']
+    print(applicants_vs_jobs.sort_values('Average applicants per job'))
+
 # read files for job listings
 job_df_list = []
 job_data = glob.glob(os.path.join(os.getcwd(), '*.csv'))
@@ -74,11 +87,12 @@ job_data = glob.glob(os.path.join(os.getcwd(), '*.csv'))
 for file in job_data:
     job_df_list.append(pd.read_csv(file))
 
-jobs_df = pandas.concat(job_df_list)
+jobs_df = pandas.concat(job_df_list).drop_duplicates(subset=['Job URN'])
 
 industries_stats(jobs_df)
 company_stats(jobs_df)
 skills_stats(jobs_df)
+job_competition_stats(jobs_df)
 
 
 
