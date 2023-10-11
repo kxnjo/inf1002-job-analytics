@@ -12,7 +12,7 @@ import glob
 # most popular industries
 def industries_stats(jobs):
     # remove duplicates, exclude jobs where industries empty and then split values
-    df = jobs.dropna(subset=['Industries']).drop_duplicates(subset=['Job URN'])
+    df = jobs.dropna(subset=['Industries'])
     df['Industries'] = df['Industries'].str.split(':')
     industry_list = df.explode('Industries')['Industries']
 
@@ -30,7 +30,7 @@ def industries_stats(jobs):
 # average skills identified per job (lightcast vs linkedin)
 def skills_stats(jobs):
     # drop skill rows that are duplicates across IS and SE or do not have any skills identified by linkedin
-    job_skills = jobs.drop_duplicates(subset=['Job URN']).dropna(subset=['Skills'])
+    job_skills = jobs.dropna(subset=['Skills'])
 
     lightcast_skill_count = 0
     linkedin_skill_count = 0
@@ -41,8 +41,8 @@ def skills_stats(jobs):
         lightcast_skill_count += len(str(item[1]['Extracted Skills']).split(','))
 
     # average out and display in bar chart
-    avg_linkedin_skill = linkedin_skill_count/len(job_skills)
-    avg_lightcast_skill = lightcast_skill_count/len(job_skills)
+    avg_linkedin_skill = round(linkedin_skill_count/len(job_skills), 2)
+    avg_lightcast_skill = round(lightcast_skill_count/len(job_skills), 2)
 
     st.header('Average number of skills identified per job by each platform')
 
@@ -67,6 +67,7 @@ def company_stats(jobs):
         x=alt.X('count:Q', title='Number of job listings')
     ))
 
+
 # read files for job listings
 job_df_list = []
 job_data = glob.glob(os.path.join(os.getcwd(), '*.csv'))
@@ -74,7 +75,7 @@ job_data = glob.glob(os.path.join(os.getcwd(), '*.csv'))
 for file in job_data:
     job_df_list.append(pd.read_csv(file))
 
-jobs_df = pandas.concat(job_df_list)
+jobs_df = pandas.concat(job_df_list).drop_duplicates(subset=['Job URN'])
 
 industries_stats(jobs_df)
 company_stats(jobs_df)
