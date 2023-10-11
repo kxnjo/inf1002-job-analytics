@@ -11,7 +11,6 @@ def main():
 
     createPlot(newDF,csvName)
 
-
 def userChoices(choice):
     if choice == "**Software Engineering**":
         csv_name = 'extract_linkedIn_skills/cleaned_data/extracted/title_skill/appended_skill_SE_cleaned_03-10-2023_14-53-53.csv'
@@ -55,14 +54,16 @@ def createPlot(data1, data2):
 
     # # Use the sorted index to rearrange the rows in the df
     sorted_df = pivot_df.loc[sorted_df.index]
-    print(sorted_df)
-   
+  
     # df skills
     dfSkills = sorted_df.index
 
-    num_skills_to_display = st.sidebar.slider("Number of Skills to Display", 1, 50 , 5) # 1 - lowest , 50 - max , 5 - default
+    num_skills_to_display = st.sidebar.slider("Number of Skills to Display", 1, 50 , 25) # 1 - lowest , 50 - max , 5 - default
     # Create a list of all seniority levels for default selection
-    all_seniorities = sorted_df.columns.to_list()
+    all_seniorities = sorted_df.columns.to_list() #['Associate', 'Director', 'Entry level', 'Executive', 'Internship', 'Mid-Senior level']
+    # re-arrange seniority from junior to senior
+    all_seniorities = ['Internship', 'Entry level', 'Associate', 'Mid-Senior level', 'Director', 'Executive']
+
 
     # Add a sidebar multi-select with default selection of all seniority levels
     selected_seniorities = st.sidebar.multiselect("Select Seniority Levels", all_seniorities, all_seniorities)
@@ -75,20 +76,13 @@ def createPlot(data1, data2):
 
     # SIT SKILLS
     if data2 == "extract_linkedIn_skills/cleaned_data/extracted/title_skill/appended_skill_SE_cleaned_03-10-2023_14-53-53.csv":
-        schoolDf = pd.read_csv("extract_SIT_skills/data/Information and Communications Technology (Software Engineering)_Module_Description_Skills.csv")
         courseSelected = "Software Engineering"
     else:
-        schoolDf = pd.read_csv("extract_SIT_skills/data/Information and Communications Technology (Information Security)_Module_Description_Skills.csv")
         courseSelected = "Information Security"
     
-    schoolSkills = schoolDf["Skills"].to_list()
-
-    schDf = sorted_filtered_df[sorted_filtered_df.index.isin(schoolSkills)]
-    schDfSkills = schDf.index
-
     st.header(f"LinkedIn's Top {courseSelected} Skills")
-    fig1 = px.bar(sorted_filtered_df.head(num_skills_to_display), x= dfSkills[:num_skills_to_display], y= selected_seniorities, labels ={'x': 'Top Skills from LinkedIn Job Postings', 'variable': 'Seniority Level', 'value': 'count'})
-    fig = px.bar(schDf.head(num_skills_to_display), x= schDfSkills[:num_skills_to_display], y= selected_seniorities, labels ={'x': f'Find Top Skills from LinkedIn Job Postings taught in SIT {courseSelected}', 'variable': 'Seniority Level', 'value': 'count'})
+    # fig1 = px.bar(sorted_filtered_df.head(num_skills_to_display), x= dfSkills[:num_skills_to_display], y= selected_seniorities, labels ={'x': 'Top Skills from LinkedIn Job Postings', 'variable': 'Seniority Level', 'value': 'count'})
+    fig1 = px.bar(sorted_filtered_df.head(num_skills_to_display), x= selected_seniorities, y= dfSkills[:num_skills_to_display], labels ={'y': 'Top Skills from LinkedIn Job Postings', 'variable': 'Seniority Level', 'value': 'count'})
     
     st.plotly_chart(fig1, use_container_width=True)
     #panda series to dataframe
@@ -105,7 +99,27 @@ def createPlot(data1, data2):
 
     # checkbox to show/hide 2nd graph
     show_graph = st.checkbox("Show Comparison with SIT skills")
+    
     if show_graph:
+        # SIT SKILLS
+        SITselected = st.selectbox("Choose SIT Course", options= ['Software Engineering', 'Information Security'])
+        
+        if courseSelected == "Software Engineering" and SITselected == "Software Engineering":
+            schoolDf = pd.read_csv("extract_SIT_skills/data/Information and Communications Technology (Software Engineering)_Module_Description_Skills.csv")
+        elif courseSelected == "Software Engineering" and SITselected == "Information Security":
+            schoolDf = pd.read_csv("extract_SIT_skills/data/Information and Communications Technology (Information Security)_Module_Description_Skills.csv")
+        elif courseSelected == "Information Security" and SITselected == "Information Security":
+            schoolDf = pd.read_csv("extract_SIT_skills/data/Information and Communications Technology (Information Security)_Module_Description_Skills.csv")
+        elif courseSelected == "Information Security" and SITselected == "Software Engineering":
+            schoolDf = pd.read_csv("extract_SIT_skills/data/Information and Communications Technology (Software Engineering)_Module_Description_Skills.csv")
+        
+        schoolSkills = schoolDf["Skills"].to_list()
+       
+        schDf = sorted_filtered_df[sorted_filtered_df.index.isin(schoolSkills)]
+        schDfSkills = schDf.index
+        fig = px.bar(schDf.head(num_skills_to_display), x= selected_seniorities, y= schDfSkills[:num_skills_to_display], labels ={'y': f'Top Skills from \nLinkedIn Job Postings taught in SIT {courseSelected}', 'variable': 'Seniority Level', 'value': 'Count'})
+    
+        st.subheader(f"Comparison between {courseSelected} LinkedIn Skills and SIT {SITselected}")
         st.plotly_chart(fig, use_container_width=True)
         st.caption(f"Disclaimer: {result}")
 
@@ -131,7 +145,7 @@ def suggestPlot(data1, data2):
     diffDf['Skills']=diffDf.index
     diffDf = diffDf.reset_index(drop=True) #reset index
     # Sidebar slider to select the number of skills to display
-    num_skills_to_display = st.sidebar.slider("Pie Chart Slider", 1, 20, 5)
+    num_skills_to_display = st.sidebar.slider("Pie Chart Slider", 1, 50, 20)
 
     filtered_df = diffDf.head(num_skills_to_display)
 
@@ -140,6 +154,7 @@ def suggestPlot(data1, data2):
 
     # Display the pie chart
     st.plotly_chart(fig)
+    # skills in text format
     st.subheader('Top Skills to develop outside of SIT curriculum', divider='rainbow')
     for num in range(num_skills_to_display):
     #iloc is to search by column
