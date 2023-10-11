@@ -41,8 +41,8 @@ def skills_stats(jobs):
         lightcast_skill_count += len(str(item[1]['Extracted Skills']).split(','))
 
     # average out and display in bar chart
-    avg_linkedin_skill = linkedin_skill_count/len(job_skills)
-    avg_lightcast_skill = lightcast_skill_count/len(job_skills)
+    avg_linkedin_skill = round(linkedin_skill_count/len(job_skills), 2)
+    avg_lightcast_skill = round(lightcast_skill_count/len(job_skills), 2)
 
     st.header('Average number of skills identified per job by each platform')
 
@@ -68,18 +68,6 @@ def company_stats(jobs):
     ))
 
 
-def job_competition_stats(jobs):
-    # total job applications per company
-    applicants_per_company = jobs.groupby(by='Company Name', as_index=False).sum('Applicants')[['Company Name', 'Applicants']]
-    # total job listings per company
-    jobs_per_company = (jobs.groupby(by='Company Name', as_index=True).size().reset_index().sort_values(0)
-                        .rename(columns={0: 'Total job listings'}))
-
-    # merge dataframes to get total job listings and applicants per company
-    applicants_vs_jobs = jobs_per_company.merge(applicants_per_company, how='inner', on=['Company Name'])
-    applicants_vs_jobs['Average applicants per job'] = applicants_vs_jobs['Applicants'] / applicants_vs_jobs['Total job listings']
-    print(applicants_vs_jobs.sort_values('Average applicants per job'))
-
 # read files for job listings
 job_df_list = []
 job_data = glob.glob(os.path.join(os.getcwd(), '*.csv'))
@@ -92,7 +80,6 @@ jobs_df = pandas.concat(job_df_list).drop_duplicates(subset=['Job URN'])
 industries_stats(jobs_df)
 company_stats(jobs_df)
 skills_stats(jobs_df)
-job_competition_stats(jobs_df)
 
 
 
