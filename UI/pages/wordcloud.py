@@ -17,7 +17,7 @@ def construct_words(df):
     curr_words = []
     for index, values in df.iterrows():
         print(values["skill"])
-        curr_words.append(dict(text = values["skill"], value = values["count"], skill = values["skill"], count = values["count"], category = values["category"]))
+        curr_words.append(dict(text = values["skill"], value = values["count"], type = values["type"], count = values["count"], category = values["category"]))
     return curr_words
 
 # multi select
@@ -40,5 +40,5 @@ if len(options) != 0:
 words = sorted(words, key=lambda x: x['count'], reverse=True)
 # word cloud
 return_obj = wordcloud.visualize(words, tooltip_data_fields={
-    'text': 'Skill', 'value':'Total skill count'
+    'text': 'Skill', 'value':'Total skill count',  'type': "Skill type"
 }, padding=2, max_words = 50, palette='Dark2', per_word_coloring=False)
