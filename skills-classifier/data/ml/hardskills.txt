@@ -179,7 +179,7 @@ iOS
 Information Systems
 Implementation
 Internet
-Linux
+linux
 Logic
 MacOS
 Math
@@ -232,3 +232,10 @@ information systems security professional
 firewall
 information Technology
 cyber threat intelligence
+HyperText Markup Language
+Node.js
+RESTful API
+Artificial Intelligence
+CI/CD
+automation
+software engineering

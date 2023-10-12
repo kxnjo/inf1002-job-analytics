@@ -1,7 +1,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import difflib
-from classify_skills.py import classify_skill
+from classify_skills import classify_skill
 
 # = = = IMPORT DATASETS = = =
 # linkedin data
