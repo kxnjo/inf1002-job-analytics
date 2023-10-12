@@ -5,6 +5,7 @@ import altair as alt
 import os
 import glob
 
+
 # uses 2 csv files - the cleaned jobs csv files (IS and SE) with the lightcast skills appended
 # currently reads these 2 files from the same directory as the script
 # most popular industries can put in the main app, additional insights can be separate
@@ -17,9 +18,13 @@ def industries_stats(jobs):
     industry_list = df.explode('Industries')['Industries']
 
     st.header('Most popular industries')
-    # get top 30 industries by count
-    st.write(f'Total number of industries is {len(industry_list.unique())}, showing top 30')
-    industries_display = industry_list.value_counts().to_frame().head(30)
+    # get top n industries by count selected using slider, default is 10, max 50
+    to_show = st.slider('Select top n results to display', 10, 50, 10, key='industries-slider')
+    st.write(f'Total number of industries is {len(industry_list.unique())}, showing top {to_show}')
+
+    # update chart on slider change
+    if to_show:
+        industries_display = industry_list.value_counts().to_frame().head(to_show)
 
     # display as bar chart
     st.write(alt.Chart(industries_display.reset_index()).properties(width=700).mark_bar().encode(
@@ -56,17 +61,41 @@ def skills_stats(jobs):
         y='Count:Q'
     ))
 
+
 # most popular companies
 def company_stats(jobs):
+    # count job listings grouped by company name
     company_list = jobs['Company Name'].value_counts()
     st.header('Most popular companies')
-    st.write(f'Total number of companies is {len(company_list)}, showing top 30')
+
+    company_list_display = company_list
+    # get top n companies by count selected using slider, default is 10, max 50
+    to_show = st.slider('Select top n results to display', 10, 50, 10, key='companies-slider')
+    st.write(f'Total number of companies is {len(company_list)}, showing top {to_show}')
+
+    # update chart on slider change
+    if to_show:
+        company_list_display = company_list.to_frame().head(to_show)
+
     # display as bar chart
-    st.write(alt.Chart(company_list.head(30).reset_index()).properties(width=700).mark_bar().encode(
+    st.write(alt.Chart(company_list_display.reset_index()).properties(width=700).mark_bar().encode(
         y=alt.Y('Company Name', sort=None, type='nominal', axis=alt.Axis(labelLimit=190)),
         x=alt.X('count:Q', title='Number of job listings')
     ))
 
+    st.header('Companies sorted by number of job listings')
+    # dataframe for display in table
+    company_list_search = company_list.to_frame()
+    # allow user to search for a company and see how many job listings they have
+    search = st.text_input('Search for a company')
+    if search:
+        company_list_search = company_list[company_list.index.str.contains(search, case=False)].to_frame()
+
+    st.dataframe(company_list_search.rename(columns={'count': 'Number of job listings'}), width=700
+                 , column_config={
+                    'Company Name': st.column_config.TextColumn(width='large'),
+                    'Number of job listings': st.column_config.TextColumn(width='small')
+                })
 
 # read files for job listings
 job_df_list = []
@@ -80,6 +109,3 @@ jobs_df = pandas.concat(job_df_list).drop_duplicates(subset=['Job URN'])
 industries_stats(jobs_df)
 company_stats(jobs_df)
 skills_stats(jobs_df)
-
-
-
