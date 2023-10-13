@@ -12,7 +12,7 @@ st.set_page_config(
     )
 
 st.title('🧑‍💻 LinkedIn Skills and Job Statistics')
-deg = st.sidebar.selectbox(label='Select a Degree', options=('ICT(IS)', 'ICT(SE)'), placeholder='Choose a Degree')
+deg = st.sidebar.selectbox(label='Select LinkedIn Category', options=('LinkedIn Information Systems', 'LinkedIn Software Engineering'), placeholder='Choose a Degree')
 
 def main(deg):
          
@@ -21,7 +21,7 @@ def main(deg):
 
 
 def userChoices(deg):
-    if deg == "ICT(IS)":
+    if deg == "LinkedIn Information Systems":
         csv_name = 'data/Appended_Skills_IS.csv'
         newDF= pd.read_csv(csv_name)
     else:
@@ -224,10 +224,10 @@ try:
     job_data = ['data/Appended_Skills_IS.csv','data/Appended_Skills_SE.csv']
 
     #read csv based on degree chosen
-    if deg == 'ICT(IS)':
+    if deg == 'LinkedIn Information Systems':
         job_df_list.append(pd.read_csv(job_data[0]))
 
-    elif deg == 'ICT(SE)':
+    elif deg == 'LinkedIn Software Engineering':
         job_df_list.append(pd.read_csv(job_data[1]))
 
     st.write('#')
