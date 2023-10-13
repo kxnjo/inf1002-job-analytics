@@ -3,7 +3,7 @@ import requests
 import csv
 import pandas as pd
 import os
-
+import string
 
 def main():
     # Read csv files containing extracted data
@@ -12,7 +12,7 @@ def main():
 
     for filepath in filepaths:
         if filepath.endswith(".csv"):
-            print(filepath)
+            print(f"Reading {filepath}")
             module_title = []
             module_desc = []
 
@@ -27,6 +27,7 @@ def main():
                         if module_match(row[0], title):
                             module_title.append(title)
                             module_desc.append(desc)
+                            print(f"Added description for {title}")
                             continue
 
                     # If link doesn't exist or module name doesn't match, set value to None
@@ -78,9 +79,14 @@ def get_description(url):
 
 # Check if module description page matches module name stated in course page
 def module_match(mod_name, description_page_name):
-    # Data cleaning on mod name, including some common US-UK English differences
-    clean_mod_name1 = mod_name.replace(" ", "").replace("-", "").replace("iz", "is").replace("ze", "se")
-    clean_mod_name2 = description_page_name.replace(" ", "").replace("-", "").replace("iz", "is").replace("ze", "se")
+    # Removing whitespaces and punctuation
+    removal = string.punctuation + string.whitespace
+    mod_name1 = mod_name.translate(str.maketrans('', '', removal))
+    mod_name2 = description_page_name.translate(str.maketrans('', '', removal))
+
+    # Replacing some common US-UK English differences
+    clean_mod_name1 = mod_name1.replace("ization", "isation").replace("ze", "se")
+    clean_mod_name2 = mod_name2.replace("ization", "isation").replace("ize", "ise")
 
     if clean_mod_name1.lower() == clean_mod_name2.lower():
         return True
