@@ -12,7 +12,7 @@ def main():
 
     for filepath in filepaths:
         if filepath.endswith(".csv"):
-            print(filepath)
+            print(f"Reading {filepath}")
             module_title = []
             module_desc = []
 
