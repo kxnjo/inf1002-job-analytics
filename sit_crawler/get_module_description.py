@@ -12,7 +12,7 @@ def main():
 
     for filepath in filepaths:
         if filepath.endswith(".csv"):
-            print(filepath)
+            print(f"Reading {filepath}")
             module_title = []
             module_desc = []
 
@@ -27,6 +27,7 @@ def main():
                         if module_match(row[0], title):
                             module_title.append(title)
                             module_desc.append(desc)
+                            print(f"Added description for {title}")
                             continue
 
                     # If link doesn't exist or module name doesn't match, set value to None

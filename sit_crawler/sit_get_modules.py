@@ -78,6 +78,7 @@ def main():
         data_out.to_csv(f"data/{course_name}.csv", index=False)
 
     driver.quit()
+    sys.exit()
 
 
 # Retrieve all course names available on the webpage
