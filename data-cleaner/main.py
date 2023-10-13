@@ -10,9 +10,10 @@ import re
 
 
 def save_data(df, filename):
+    # create folder to store the cleaned files if it does not exist
     os.makedirs(f'{os.path.join(os.getcwd(), "processed")}', exist_ok=True)
     file_path = f'{os.path.join(os.getcwd(), "processed", filename)}'
-
+    # write file to folder
     df.to_csv(file_path, index=False)
 
 
@@ -34,7 +35,7 @@ def clean_data(df):
     df_for_cleaning['Job description'] = (df_for_cleaning['Job description']
                                           .apply(lambda x: " ".join(re.sub("(http\S+)",
                                                                            "", x) for x in x.split())))
-    # remove email addresses
+    # remove email addresses from description
     df_for_cleaning['Job description'] = (df_for_cleaning['Job description']
                                           .apply(lambda x: " ".join(re.sub("([\w\.\-\_]+@[\w\.\-\_]+)",
                                                                            "", x) for x in x.split())))
@@ -73,6 +74,6 @@ if __name__ == '__main__':
     for file in data:
         print(f'Reading {file}')
         file_load_df_list.append(pd.read_csv(file))
-
+    # merge all the individual dataframes (1 per file read)
     raw_data = pandas.concat(file_load_df_list)
     clean_data(raw_data)
