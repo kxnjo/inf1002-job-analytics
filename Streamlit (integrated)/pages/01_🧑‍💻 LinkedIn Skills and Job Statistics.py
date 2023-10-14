@@ -67,58 +67,56 @@ def createWordcloud(csvName):
     }, padding=2, max_words = 70, palette='Dark2', per_word_coloring=False, height='25em')
     
 def createPlot(data1, data2):
-    # LinkedIn Skills ONLY
+        # LinkedIn Skills ONLY
     jobDF = data1
+    
     # remove NaN values in Seniority and Extracted Skills column
     jobDF = jobDF.dropna(subset=['Seniority'])
     jobDF = jobDF.dropna(subset=['Extracted Skills'])
+        
     columns_to_extract = ['Seniority', 'Extracted Skills']
     # create new dataframe with only seniority and extracted skills
     new_df = jobDF[columns_to_extract]
     
     # Split the "Extracted Skills" column by comma
     skills_split = new_df['Extracted Skills'].str.split(',')
+    result_df = new_df.copy()  # Create a copy of the original DataFrame
+    result_df['Extracted Skills'] = skills_split  # Add the split skills as a new column
+        
+    new_skills = result_df.explode('Extracted Skills') 
+    
+    # Group using Extracted Skills column, count occurence of each Seniority, unstack - set Extracted Skills as index, each unique seniority as column. fill null value with 0
+    finalDF = new_skills.groupby('Extracted Skills')['Seniority'].value_counts().unstack(fill_value=0)
 
-    # Create a new DataFrame with the split skills
-    skills_df = pd.DataFrame(skills_split.tolist(), index=new_df.index)
+    # Reset the index to make "Extracted Skills" a regular column
+    finalDF = finalDF.reset_index()
+    finalDF.columns.name = None # remove index column name
 
-    # Merge the "Seniority" column with the skills DataFrame
-    merged_df = pd.concat([new_df['Seniority'], skills_df], axis=1)
-
-    # .melt is a transform func, id_vars -> x axis , value_name-> y axis column name
-    stacked_df = merged_df.melt(id_vars=['Seniority'], value_name= "Skills")
-    stacked_df = stacked_df.drop(columns="variable")
-    stacked_df = stacked_df.dropna(subset="Skills")
-
-    testDf = pd.DataFrame(stacked_df, columns = ["Seniority", "Skills"])
-    # sum count of each skill
-    pivot_df = testDf.pivot_table(index='Skills', columns='Seniority', aggfunc='size', fill_value=0)
-
-    # sort by the sum of all seniority levels
-    sorted_df = pivot_df.sum(axis=1).sort_values(ascending=False)
-
-    # # Use the sorted index to rearrange the rows in the df
-    sorted_df = pivot_df.loc[sorted_df.index]
+        # Create a new column to sum
+    finalDF['Total'] = finalDF[finalDF.columns[1:]].sum(axis=1)
+    # sort by Highest > Lowest sum
+    finalDF = finalDF.sort_values(by='Total', ascending=False)
+    finalDF = finalDF.drop(columns='Total')
+    finalDF = finalDF.reset_index(drop=True)
     # print(sorted_df)
 
     col1, space, col2 = st.columns([6,1,9])
    
     with col1: 
     # df skills
-        dfSkills = sorted_df.index
+        dfSkills = finalDF['Extracted Skills']
         num_skills_to_display = st.slider("Number of Skills to Display", 1, 50 , 25) # 1 - lowest , 50 - max , 5 - default
         # Create a list of all seniority levels for default selection
-        all_seniorities = sorted_df.columns.to_list()
-
+        all_seniorities = finalDF.columns.to_list()
+        all_seniorities = all_seniorities[1:]
+        # Custom order for sorting
+        custom_order = {'Internship': 0, 'Entry level': 1, 'Associate': 2, 'Mid-Senior level': 3, 'Director': 4, 'Executive': 5}
+    # Sort the list based on the custom order
+        all_seniorities = sorted(all_seniorities, key=lambda x: custom_order.get(x, len(custom_order)))
+        
     with col2:
         # Add a sidebar multi-select with default selection of all seniority levels
         selected_seniorities = st.multiselect("Select Seniority Levels", all_seniorities, all_seniorities)
-
-    # Filter the DataFrame based on selected seniority levels
-    filtered_df = sorted_df[selected_seniorities]
-
-    # Sort the DataFrame in descending order by the sum of selected seniority levels
-    sorted_filtered_df = filtered_df.loc[filtered_df.sum(axis=1).sort_values(ascending=False).index]
 
     # SIT SKILLS
     if data2 == "data/Appended_Skills_IS.csv":
@@ -129,12 +127,11 @@ def createPlot(data1, data2):
         courseSelected = "Software Engineering"
     
     schoolSkills = schoolDf["Skills"].to_list()
-
-    schDf = sorted_filtered_df[sorted_filtered_df.index.isin(schoolSkills)]
-    schDfSkills = schDf.index
+       
+    schDf = finalDF[finalDF['Extracted Skills'].isin(schoolSkills)]
 
     st.header(f"LinkedIn's Top {courseSelected} Skills")
-    fig1 = px.bar(sorted_filtered_df.head(num_skills_to_display), x= selected_seniorities, y= dfSkills[:num_skills_to_display], width=720, labels ={'x': 'Top Skills from LinkedIn Job Postings', 'variable': 'Seniority Level', 'value': 'Number of Occurrences', 'y': 'Skills'})    
+    fig1 = px.bar(finalDF.head(num_skills_to_display), x= selected_seniorities, y= dfSkills[:num_skills_to_display], width=720, height = 500, labels ={'x': 'Top Skills from LinkedIn Job Postings', 'variable': 'Seniority Level', 'value': 'Number of Occurrences', 'y': 'Skills'})    
     
     st.plotly_chart(fig1)
     #panda series to dataframe
@@ -149,7 +146,7 @@ def createPlot(data1, data2):
 
     st.caption(f"Disclaimer: {result}")
 
-    return sorted_df
+    return finalDF
 
 
 
