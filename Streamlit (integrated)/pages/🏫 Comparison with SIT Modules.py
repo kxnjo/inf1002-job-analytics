@@ -180,7 +180,7 @@ try:
 
     # LinkedIn Dataset
     dataset1_names = {
-            "LinkedIn Information Systems": "data/LinkedIn_Skills_IS.csv",
+            "LinkedIn Information Security": "data/LinkedIn_Skills_IS.csv",
             "LinkedIn Software Engineering": "data/LinkedIn_Skills_SE.csv",
         }
 
