@@ -35,7 +35,6 @@ def createPlot(data1, data2, selected_dataset2_name):
 
     # LinkedIn Skills ONLY
     jobDF = data1
-    
     # remove NaN values in Seniority and Extracted Skills column
     jobDF = jobDF.dropna(subset=['Seniority'])
     jobDF = jobDF.dropna(subset=['Extracted Skills'])
@@ -64,6 +63,7 @@ def createPlot(data1, data2, selected_dataset2_name):
     finalDF = finalDF.sort_values(by='Total', ascending=False)
     finalDF = finalDF.drop(columns='Total')
     finalDF = finalDF.reset_index(drop=True)
+    finalDF = finalDF.set_index('Extracted Skills')
 
     # SIT SKILLS
     if data2 == "data/Appended_Skills_SE.csv":
@@ -89,19 +89,24 @@ def createPlot(data1, data2, selected_dataset2_name):
    
     with col1: 
     # df skills
-        dfSkills = finalDF['Extracted Skills']
+        dfSkills = finalDF.index
         num_skills_to_display = st.slider("Number of Skills to Display", 1, 50 , 25) # 1 - lowest , 50 - max , 5 - default
         # Create a list of all seniority levels for default selection
         all_seniorities = finalDF.columns.to_list()
-        all_seniorities = all_seniorities[1:]
         # Custom order for sorting
         custom_order = {'Internship': 0, 'Entry level': 1, 'Associate': 2, 'Mid-Senior level': 3, 'Director': 4, 'Executive': 5}
     # Sort the list based on the custom order
         all_seniorities = sorted(all_seniorities, key=lambda x: custom_order.get(x, len(custom_order)))
-        
     with col2:
         # Add a sidebar multi-select with default selection of all seniority levels
         selected_seniorities = st.multiselect("Select Seniority Levels", all_seniorities, all_seniorities)
+
+    # Filter the DataFrame based on selected seniority levels
+    filtered_df = finalDF[selected_seniorities]
+
+    # Sort the DataFrame in descending order by the sum of selected seniority levels
+    sorted_filtered_df = filtered_df.loc[filtered_df.sum(axis=1).sort_values(ascending=False).index]
+
 
     ## graph moved to linkedin page
     # st.header(f"LinkedIn's Top {courseSelected} Skills")
@@ -121,9 +126,9 @@ def createPlot(data1, data2, selected_dataset2_name):
     # st.caption(f"Disclaimer: {result}")
         
     schoolSkills = schoolDf["Skills"].to_list()
-       
-    schDf = finalDF[finalDF['Extracted Skills'].isin(schoolSkills)]
-    schDfSkills = schDf['Extracted Skills']
+    
+    schDf = sorted_filtered_df[sorted_filtered_df.index.isin(schoolSkills)]
+    schDfSkills = schDf.index
     fig = px.bar(schDf.head(num_skills_to_display), x= selected_seniorities, y= schDfSkills[:num_skills_to_display], height= 500, labels ={'y': f'Top Skills from \nLinkedIn taught in SIT {courseSelected}', 'variable': 'Seniority Level', 'value': 'Number of Occurrences'})
     
     st.plotly_chart(fig, use_container_width=True)

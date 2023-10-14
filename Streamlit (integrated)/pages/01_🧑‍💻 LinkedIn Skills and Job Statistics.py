@@ -67,9 +67,8 @@ def createWordcloud(csvName):
     }, padding=2, max_words = 70, palette='Dark2', per_word_coloring=False, height='25em')
     
 def createPlot(data1, data2):
-        # LinkedIn Skills ONLY
+    # LinkedIn Skills ONLY
     jobDF = data1
-    
     # remove NaN values in Seniority and Extracted Skills column
     jobDF = jobDF.dropna(subset=['Seniority'])
     jobDF = jobDF.dropna(subset=['Extracted Skills'])
@@ -98,25 +97,31 @@ def createPlot(data1, data2):
     finalDF = finalDF.sort_values(by='Total', ascending=False)
     finalDF = finalDF.drop(columns='Total')
     finalDF = finalDF.reset_index(drop=True)
+    finalDF = finalDF.set_index('Extracted Skills')
     # print(sorted_df)
 
     col1, space, col2 = st.columns([6,1,9])
    
     with col1: 
     # df skills
-        dfSkills = finalDF['Extracted Skills']
+        dfSkills = finalDF.index
         num_skills_to_display = st.slider("Number of Skills to Display", 1, 50 , 25) # 1 - lowest , 50 - max , 5 - default
         # Create a list of all seniority levels for default selection
         all_seniorities = finalDF.columns.to_list()
-        all_seniorities = all_seniorities[1:]
         # Custom order for sorting
         custom_order = {'Internship': 0, 'Entry level': 1, 'Associate': 2, 'Mid-Senior level': 3, 'Director': 4, 'Executive': 5}
     # Sort the list based on the custom order
-        all_seniorities = sorted(all_seniorities, key=lambda x: custom_order.get(x, len(custom_order)))
-        
+        all_seniorities = sorted(all_seniorities, key=lambda x: custom_order.get(x, len(custom_order)))        
+
     with col2:
         # Add a sidebar multi-select with default selection of all seniority levels
         selected_seniorities = st.multiselect("Select Seniority Levels", all_seniorities, all_seniorities)
+
+    # Filter the DataFrame based on selected seniority levels
+    filtered_df = finalDF[selected_seniorities]
+
+    # Sort the DataFrame in descending order by the sum of selected seniority levels
+    sorted_filtered_df = filtered_df.loc[filtered_df.sum(axis=1).sort_values(ascending=False).index]
 
     # SIT SKILLS
     if data2 == "data/Appended_Skills_IS.csv":
@@ -127,11 +132,12 @@ def createPlot(data1, data2):
         courseSelected = "Software Engineering"
     
     schoolSkills = schoolDf["Skills"].to_list()
-       
-    schDf = finalDF[finalDF['Extracted Skills'].isin(schoolSkills)]
+
+    schDf = sorted_filtered_df[sorted_filtered_df.index.isin(schoolSkills)]
+    schDfSkills = schDf.index
 
     st.header(f"LinkedIn's Top {courseSelected} Skills")
-    fig1 = px.bar(finalDF.head(num_skills_to_display), x= selected_seniorities, y= dfSkills[:num_skills_to_display], width=720, height = 500, labels ={'x': 'Top Skills from LinkedIn Job Postings', 'variable': 'Seniority Level', 'value': 'Number of Occurrences', 'y': 'Skills'})    
+    fig1 = px.bar(sorted_filtered_df.head(num_skills_to_display), x= selected_seniorities, y= dfSkills[:num_skills_to_display], width=720, labels ={'x': 'Top Skills from LinkedIn Job Postings', 'variable': 'Seniority Level', 'value': 'Number of Occurrences', 'y': 'Skills'})    
     
     st.plotly_chart(fig1)
     #panda series to dataframe
