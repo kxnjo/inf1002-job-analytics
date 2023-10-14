@@ -3,7 +3,7 @@ import pandas as pd
 import streamlit as st
 import altair as alt
 import plotly.express as px
-# import streamlit_wordcloud as wordcloud
+import streamlit_wordcloud as wordcloud
 
 st.set_page_config(
     page_title='SIT Skills and Job Analysis', 
@@ -17,6 +17,7 @@ deg = st.sidebar.selectbox(label='Select LinkedIn Category', options=('LinkedIn 
 def main(deg):
          
     newDF, csvName = userChoices(deg)
+    createWordcloud(csvName)
     createPlot(newDF,csvName)
 
 
@@ -29,6 +30,41 @@ def userChoices(deg):
         newDF= pd.read_csv(csv_name)
 
     return newDF, csv_name
+
+# = = = WORD CLOUD = = =
+def construct_words(df):
+    curr_words = []
+    for index, values in df.iterrows():
+        curr_words.append(dict(text = values["skill"], value = values["count"], type = values["type"], count = values["count"], category = values["category"]))
+    return curr_words
+
+def createWordcloud(csvName):
+    allSkills = pd.read_csv('../skills-classifier/data/allSkill.csv')
+    if 'IS' in csvName:
+        hSkill = allSkills[(allSkills["category"] == "IS") & (allSkills["type"] == "hard_skill")].sort_values(by = 'count', ascending = False)
+        sSkill = allSkills[(allSkills["category"] == "IS") & (allSkills["type"] == "soft_skill")].sort_values(by = 'count', ascending = False)
+    elif 'SE' in csvName:
+        hSkill = allSkills[(allSkills["category"] == "SE") & (allSkills["type"] == "hard_skill")].sort_values(by = 'count', ascending = False)
+        sSkill = allSkills[(allSkills["category"] == "SE") & (allSkills["type"] == "soft_skill")].sort_values(by = 'count', ascending = False)
+
+    # display option bar
+    option = st.selectbox(label='Choose Type of Skill', options=('Hard Skills', 'Soft Skills', 'Both'), placeholder='Type of Skill')
+    words = []
+
+    # filter by option
+    if option == "Hard Skills":
+        words += construct_words(hSkill)
+    elif option == "Soft Skills":
+        words += construct_words(sSkill)
+    elif option == "Both":
+        words += construct_words(hSkill)
+        words += construct_words(sSkill)
+
+    words = sorted(words, key=lambda x: x['count'], reverse=True)
+    # word cloud
+    return_obj = wordcloud.visualize(words, tooltip_data_fields={
+        'text': 'Skill', 'value':'Total skill count',  'type': "Skill type"
+    }, padding=2, max_words = 70, palette='Dark2', per_word_coloring=False, height='25em')
     
 def createPlot(data1, data2):
     # LinkedIn Skills ONLY
@@ -217,9 +253,6 @@ def company_stats(jobs):
                 })
 
 try:
-
-    st.selectbox(label='Choose Type of Skill', options=('Soft Skills', 'Hard Skills', 'Both'), placeholder='Type of Skill')
-
     job_df_list = []
     job_data = ['data/Appended_Skills_IS.csv','data/Appended_Skills_SE.csv']
 
