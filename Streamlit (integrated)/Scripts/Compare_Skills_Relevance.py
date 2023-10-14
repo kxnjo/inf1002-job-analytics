@@ -1,5 +1,7 @@
 import streamlit as st
 import plotly.express as px
+import pandas as pd
+from annotated_text import annotated_text, annotation
 
 
 def comparison1(df1, df2):
@@ -52,11 +54,17 @@ def comparison1(df1, df2):
     matched_skills_df2.reset_index(drop=True, inplace=True)
     matched_skills_df2.index = matched_skills_df2.index + 1
     
+    # retrieve skills classifier csv
+    skillTypes = pd.read_csv("../skills-classifier/data/allSkill.csv")
+
     st.subheader('Demanded skills found in SIT curriculum', divider='rainbow')
     with st.expander('See all Skills'):
         for num in range(len(matched_skills_df2)):
         #iloc is to search by column
-            st.write(f"Skill {num+1} : {matched_skills_df2.iloc[num]['Skills']}")
+            currSkill = matched_skills_df2.iloc[num]['Skills']
+            currType = skillTypes.loc[skillTypes["skill"] == currSkill]["type"].values.tolist()[0]
+            currType, color = ["Soft Skill", "#A3F3C9"] if currType == "soft_skill" else ["Hard Skill", "#FFD3A7"]
+            annotated_text(f"Skill {num+1} : {currSkill} ", annotation(currType, "", color))
 
 
     # Create a filter to display unmatched skills from dataset 1
@@ -70,4 +78,7 @@ def comparison1(df1, df2):
     with st.expander('See all Skills'):
         for num in range(len(unmatched_skills_df1)):
         #iloc is to search by column
-            st.write(f"Skill {num+1} : {unmatched_skills_df1.iloc[num]['Skills']}")
+            currSkill = unmatched_skills_df1.iloc[num]['Skills']
+            currType = skillTypes.loc[skillTypes["skill"] == currSkill]["type"].values.tolist()[0]
+            currType, color = ["Soft Skill", "#A3F3C9"] if currType == "soft_skill" else ["Hard Skill", "#FFD3A7"]
+            annotated_text(f"Skill {num+1} : {currSkill} ", annotation(currType, "", color))
