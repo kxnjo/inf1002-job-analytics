@@ -129,7 +129,7 @@ def createPlot(data1, data2, selected_dataset2_name):
     
     schDf = sorted_filtered_df[sorted_filtered_df.index.isin(schoolSkills)]
     schDfSkills = schDf.index
-    fig = px.bar(schDf.head(num_skills_to_display), x= selected_seniorities, y= schDfSkills[:num_skills_to_display], height= 500, labels ={'y': f'Top Skills from \nLinkedIn taught in SIT {courseSelected}', 'variable': 'Seniority Level', 'value': 'Number of Occurrences'})
+    fig = px.bar(schDf.head(num_skills_to_display), x= selected_seniorities, y= schDfSkills[:num_skills_to_display], height= 500, labels ={'y': 'Top Skills from LinkedIn taught in SIT ', 'variable': 'Seniority Level', 'value': 'Number of Occurrences'})
     
     st.plotly_chart(fig, use_container_width=True)
     st.caption(f"Disclaimer: {result}")
