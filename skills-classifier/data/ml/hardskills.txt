@@ -228,14 +228,16 @@ Windows
 Workstations
 YAML
 Cyber security
-information systems security professional
-firewall
+Information Systems Security Professional
+Firewall
 information Technology
-cyber threat intelligence
+Cyber Threat Intelligence
 HyperText Markup Language
 Node.js
 RESTful API
 Artificial Intelligence
 CI/CD
-automation
-software engineering
+Automation
+Software Engineering
+Security Information And Event Management (SIEM)
+Chef (Configuration Management Tool)
