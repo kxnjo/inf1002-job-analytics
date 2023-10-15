@@ -1,4 +1,3 @@
-import time
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
@@ -157,6 +156,5 @@ def end_program(error):
     driver.quit()
     sys.exit(error)
 
-#start_time = time.time()
+
 main()
-#print("--- %s seconds ---" % (time.time() - start_time))

@@ -89,7 +89,6 @@ def module_match(mod_name, description_page_name):
     clean_mod_name2 = mod_name2.replace("ization", "isation").replace("ize", "ise")
 
     if clean_mod_name1.lower() == clean_mod_name2.lower():
-        print(clean_mod_name1, clean_mod_name2)
         return True
     return False
 
