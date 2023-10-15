@@ -48,7 +48,7 @@ def createWordcloud(csvName):
         sSkill = allSkills[(allSkills["category"] == "SE") & (allSkills["type"] == "soft_skill")].sort_values(by = 'count', ascending = False)
 
     # display option bar
-    option = st.selectbox(label='Choose Type of Skill', options=('Hard Skills', 'Soft Skills', 'Both'), placeholder='Type of Skill')
+    option = st.selectbox(label='Choose Type of Skill', options=('Hard Skills and Soft Skills', 'Hard Skills', 'Soft Skills'), placeholder='Type of Skill')
     words = []
 
     # filter by option
@@ -56,7 +56,7 @@ def createWordcloud(csvName):
         words += construct_words(hSkill)
     elif option == "Soft Skills":
         words += construct_words(sSkill)
-    elif option == "Both":
+    elif option == "Hard Skills and Soft Skills":
         words += construct_words(hSkill)
         words += construct_words(sSkill)
 
@@ -64,7 +64,7 @@ def createWordcloud(csvName):
     # word cloud
     return_obj = wordcloud.visualize(words, tooltip_data_fields={
         'text': 'Skill', 'value':'Total skill count',  'type': "Skill type"
-    }, padding=2, max_words = 70, palette='Dark2', per_word_coloring=False, height='25em')
+    }, padding=2, max_words = 50, palette='Dark2', per_word_coloring=False, height='40em')
     
 def createPlot(data1, data2):
     # LinkedIn Skills ONLY
