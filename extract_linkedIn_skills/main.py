@@ -44,7 +44,7 @@ def main():
 # Access environment variables ti access the skills api
 def get_access_token():
     url = "https://auth.emsicloud.com/connect/token"
-    payload = f"client_id={os.getenv('Client_ID')}&client_secret={os.getenv('Secret')}&grant_type=client_credentials&scope=emsi_open"
+    payload = "client_id=yzksqh2fhcdas5d3&client_secret=1Ol9MEkB&grant_type=client_credentials&scope=emsi_open"
     headers = {"Content-Type": "application/x-www-form-urlencoded"}
     response = requests.request("POST", url, data=payload, headers=headers)
     return json.loads(response.text)["access_token"]
