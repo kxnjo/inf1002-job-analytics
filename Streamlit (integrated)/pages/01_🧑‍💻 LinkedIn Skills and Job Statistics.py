@@ -125,19 +125,12 @@ def createPlot(data1, data2):
 
     # SIT SKILLS
     if data2 == "data/Appended_Skills_IS.csv":
-        schoolDf = pd.read_csv("data/ICT(IS)_Module_Description_Skills.csv")
         courseSelected = "Information Security"
     else:
-        schoolDf = pd.read_csv("data/ICT(SE)_Module_Description_Skills.csv")
         courseSelected = "Software Engineering"
-    
-    schoolSkills = schoolDf["Skills"].to_list()
-
-    schDf = sorted_filtered_df[sorted_filtered_df.index.isin(schoolSkills)]
-    schDfSkills = schDf.index
 
     st.header(f"LinkedIn's Top {courseSelected} Skills")
-    fig1 = px.bar(sorted_filtered_df.head(num_skills_to_display), x= selected_seniorities, y= dfSkills[:num_skills_to_display], width=720, labels ={'x': 'Top Skills from LinkedIn Job Postings', 'variable': 'Seniority Level', 'value': 'Number of Occurrences', 'y': 'Skills'})    
+    fig1 = px.bar(sorted_filtered_df.head(num_skills_to_display), x= selected_seniorities, y= dfSkills[:num_skills_to_display], height=500, width=720, labels ={'x': 'Top Skills from LinkedIn Job Postings', 'variable': 'Seniority Level', 'value': 'Number of Occurrences', 'y': 'Skills'})    
     
     st.plotly_chart(fig1)
     #panda series to dataframe
@@ -153,16 +146,6 @@ def createPlot(data1, data2):
     st.caption(f"Disclaimer: {result}")
 
     return finalDF
-
-
-
-
-
-
-
-
-
-
 
 
 
