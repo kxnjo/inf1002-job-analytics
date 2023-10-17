@@ -19,7 +19,7 @@ driver = webdriver.Chrome(options=options)
 
 
 def main():
-    # Enter SIT website
+    # Enter SIT's website listing all undergraduate programmes
     print(f"\nAttempting to retrieve SIT undergraduate degree programmes...")
     try:
         driver.get("https://www.singaporetech.edu.sg/undergraduate-programmes")
