@@ -1,4 +1,3 @@
-import time
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
@@ -20,7 +19,7 @@ driver = webdriver.Chrome(options=options)
 
 
 def main():
-    # Enter SIT website
+    # Enter SIT's website listing all undergraduate programmes
     print(f"\nAttempting to retrieve SIT undergraduate degree programmes...")
     try:
         driver.get("https://www.singaporetech.edu.sg/undergraduate-programmes")
@@ -157,6 +156,5 @@ def end_program(error):
     driver.quit()
     sys.exit(error)
 
-#start_time = time.time()
+
 main()
-#print("--- %s seconds ---" % (time.time() - start_time))
