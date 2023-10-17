@@ -1,4 +1,3 @@
-
 import pandas as pd
 import streamlit as st
 import altair as alt
@@ -6,49 +5,60 @@ import plotly.express as px
 import streamlit_wordcloud as wordcloud
 
 st.set_page_config(
-    page_title='SIT Skills and Job Analysis', 
-    page_icon='🔍', 
+    page_title='SIT Skills and Job Analysis',
+    page_icon='🔍',
     layout='wide'
-    )
+)
 
 st.title('🧑‍💻 LinkedIn Skills and Job Statistics')
-deg = st.sidebar.selectbox(label='Select LinkedIn Category', options=('LinkedIn Information Security', 'LinkedIn Software Engineering'), placeholder='Choose a Degree')
+deg = st.sidebar.selectbox(label='Select LinkedIn Category',
+                           options=('LinkedIn Information Security', 'LinkedIn Software Engineering'),
+                           placeholder='Choose a Degree')
+
 
 def main(deg):
-         
     newDF, csvName = userChoices(deg)
     createWordcloud(csvName)
-    createPlot(newDF,csvName)
+    createPlot(newDF, csvName)
 
 
 def userChoices(deg):
     if deg == "LinkedIn Information Security":
         csv_name = 'data/Appended_Skills_IS.csv'
-        newDF= pd.read_csv(csv_name)
+        newDF = pd.read_csv(csv_name)
     else:
         csv_name = 'data/Appended_Skills_SE.csv'
-        newDF= pd.read_csv(csv_name)
+        newDF = pd.read_csv(csv_name)
 
     return newDF, csv_name
+
 
 # = = = WORD CLOUD = = =
 def construct_words(df):
     curr_words = []
     for index, values in df.iterrows():
-        curr_words.append(dict(text = values["skill"], value = values["count"], type = values["type"], count = values["count"], category = values["category"]))
+        curr_words.append(dict(text=values["skill"], value=values["count"], type=values["type"], count=values["count"],
+                               category=values["category"]))
     return curr_words
+
 
 def createWordcloud(csvName):
     allSkills = pd.read_csv('../skills-classifier/data/allSkill.csv')
     if 'IS' in csvName:
-        hSkill = allSkills[(allSkills["category"] == "IS") & (allSkills["type"] == "hard_skill")].sort_values(by = 'count', ascending = False)
-        sSkill = allSkills[(allSkills["category"] == "IS") & (allSkills["type"] == "soft_skill")].sort_values(by = 'count', ascending = False)
+        hSkill = allSkills[(allSkills["category"] == "IS") & (allSkills["type"] == "hard_skill")].sort_values(
+            by='count', ascending=False)
+        sSkill = allSkills[(allSkills["category"] == "IS") & (allSkills["type"] == "soft_skill")].sort_values(
+            by='count', ascending=False)
     elif 'SE' in csvName:
-        hSkill = allSkills[(allSkills["category"] == "SE") & (allSkills["type"] == "hard_skill")].sort_values(by = 'count', ascending = False)
-        sSkill = allSkills[(allSkills["category"] == "SE") & (allSkills["type"] == "soft_skill")].sort_values(by = 'count', ascending = False)
+        hSkill = allSkills[(allSkills["category"] == "SE") & (allSkills["type"] == "hard_skill")].sort_values(
+            by='count', ascending=False)
+        sSkill = allSkills[(allSkills["category"] == "SE") & (allSkills["type"] == "soft_skill")].sort_values(
+            by='count', ascending=False)
 
     # display option bar
-    option = st.selectbox(label='Choose Type of Skill', options=('Hard Skills and Soft Skills', 'Hard Skills', 'Soft Skills'), placeholder='Type of Skill')
+    option = st.selectbox(label='Choose Type of Skill',
+                          options=('Hard Skills and Soft Skills', 'Hard Skills', 'Soft Skills'),
+                          placeholder='Type of Skill')
     words = []
 
     # filter by option
@@ -63,35 +73,37 @@ def createWordcloud(csvName):
     words = sorted(words, key=lambda x: x['count'], reverse=True)
     # word cloud
     return_obj = wordcloud.visualize(words, tooltip_data_fields={
-        'text': 'Skill', 'value':'Total skill count',  'type': "Skill type"
-    }, padding=2, max_words = 50, palette='Dark2', per_word_coloring=False, height='40em')
-    
+        'text': 'Skill', 'value': 'Total skill count', 'type': "Skill type"
+    }, padding=2, max_words=50, palette='Dark2', per_word_coloring=False,
+     fontFamily="Arial", height='40em', ignore_hover=True, ignore_click=True)
+
+
 def createPlot(data1, data2):
     # LinkedIn Skills ONLY
     jobDF = data1
     # remove NaN values in Seniority and Extracted Skills column
     jobDF = jobDF.dropna(subset=['Seniority'])
     jobDF = jobDF.dropna(subset=['Extracted Skills'])
-        
+
     columns_to_extract = ['Seniority', 'Extracted Skills']
     # create new dataframe with only seniority and extracted skills
     new_df = jobDF[columns_to_extract]
-    
+
     # Split the "Extracted Skills" column by comma
     skills_split = new_df['Extracted Skills'].str.split(',')
     result_df = new_df.copy()  # Create a copy of the original DataFrame
     result_df['Extracted Skills'] = skills_split  # Add the split skills as a new column
-        
-    new_skills = result_df.explode('Extracted Skills') 
-    
+
+    new_skills = result_df.explode('Extracted Skills')
+
     # Group using Extracted Skills column, count occurence of each Seniority, unstack - set Extracted Skills as index, each unique seniority as column. fill null value with 0
     finalDF = new_skills.groupby('Extracted Skills')['Seniority'].value_counts().unstack(fill_value=0)
 
     # Reset the index to make "Extracted Skills" a regular column
     finalDF = finalDF.reset_index()
-    finalDF.columns.name = None # remove index column name
+    finalDF.columns.name = None  # remove index column name
 
-        # Create a new column to sum
+    # Create a new column to sum
     finalDF['Total'] = finalDF[finalDF.columns[1:]].sum(axis=1)
     # sort by Highest > Lowest sum
     finalDF = finalDF.sort_values(by='Total', ascending=False)
@@ -100,18 +112,20 @@ def createPlot(data1, data2):
     finalDF = finalDF.set_index('Extracted Skills')
     # print(sorted_df)
 
-    col1, space, col2 = st.columns([6,1,9])
-   
-    with col1: 
-    # df skills
+    col1, space, col2 = st.columns([6, 1, 9])
+
+    with col1:
+        # df skills
         dfSkills = finalDF.index
-        num_skills_to_display = st.slider("Number of Skills to Display", 1, 50 , 25) # 1 - lowest , 50 - max , 5 - default
+        num_skills_to_display = st.slider("Number of Skills to Display", 1, 50,
+                                          25)  # 1 - lowest , 50 - max , 5 - default
         # Create a list of all seniority levels for default selection
         all_seniorities = finalDF.columns.to_list()
         # Custom order for sorting
-        custom_order = {'Internship': 0, 'Entry level': 1, 'Associate': 2, 'Mid-Senior level': 3, 'Director': 4, 'Executive': 5}
-    # Sort the list based on the custom order
-        all_seniorities = sorted(all_seniorities, key=lambda x: custom_order.get(x, len(custom_order)))        
+        custom_order = {'Internship': 0, 'Entry level': 1, 'Associate': 2, 'Mid-Senior level': 3, 'Director': 4,
+                        'Executive': 5}
+        # Sort the list based on the custom order
+        all_seniorities = sorted(all_seniorities, key=lambda x: custom_order.get(x, len(custom_order)))
 
     with col2:
         # Add a sidebar multi-select with default selection of all seniority levels
@@ -130,10 +144,13 @@ def createPlot(data1, data2):
         courseSelected = "Software Engineering"
 
     st.header(f"LinkedIn's Top {courseSelected} Skills")
-    fig1 = px.bar(sorted_filtered_df.head(num_skills_to_display), x= selected_seniorities, y= dfSkills[:num_skills_to_display], height=500, width=720, labels ={'x': 'Top Skills from LinkedIn Job Postings', 'variable': 'Seniority Level', 'value': 'Number of Occurrences', 'y': 'Skills'})    
-    
+    fig1 = px.bar(sorted_filtered_df.head(num_skills_to_display), x=selected_seniorities,
+                  y=dfSkills[:num_skills_to_display], height=500, width=720,
+                  labels={'x': 'Top Skills from LinkedIn Job Postings', 'variable': 'Seniority Level',
+                          'value': 'Number of Occurrences', 'y': 'Skills'})
+
     st.plotly_chart(fig1)
-    #panda series to dataframe
+    # panda series to dataframe
     countJobs = jobDF['Seniority'].value_counts().reset_index()
     result = ""
     for index, row in countJobs.iterrows():
@@ -148,14 +165,11 @@ def createPlot(data1, data2):
     return finalDF
 
 
-
-
-
 ## Denny's code
 # most popular industries
 def industries_stats(jobs):
-    # remove duplicates, exclude jobs where industries empty and then split values
-    df = jobs.dropna(subset=['Industries']).drop_duplicates(subset=['Job URN'])
+    # exclude jobs where industries empty and then split values
+    df = jobs.dropna(subset=['Industries'])
     df['Industries'] = df['Industries'].str.split(':')
     industry_list = df.explode('Industries')['Industries']
 
@@ -174,10 +188,11 @@ def industries_stats(jobs):
         x=alt.X('count:Q', title='Number of job listings')
     ))
 
+
 # average skills identified per job (lightcast vs linkedin)
 def skills_stats(jobs):
-    # drop skill rows that are duplicates across IS and SE or do not have any skills identified by linkedin
-    job_skills = jobs.drop_duplicates(subset=['Job URN']).dropna(subset=['Skills'])
+    # drop skill rows that do not have any skills identified by linkedin
+    job_skills = jobs.dropna(subset=['Skills'])
 
     lightcast_skill_count = 0
     linkedin_skill_count = 0
@@ -188,8 +203,8 @@ def skills_stats(jobs):
         lightcast_skill_count += len(str(item[1]['Extracted Skills']).split(','))
 
     # average out and display in bar chart
-    avg_linkedin_skill = round(linkedin_skill_count/len(job_skills), 2)
-    avg_lightcast_skill = round(lightcast_skill_count/len(job_skills), 2)
+    avg_linkedin_skill = round(linkedin_skill_count / len(job_skills), 2)
+    avg_lightcast_skill = round(lightcast_skill_count / len(job_skills), 2)
 
     st.header('Average number of skills identified per job by each platform')
 
@@ -202,6 +217,7 @@ def skills_stats(jobs):
         x='Platform:N',
         y='Count:Q'
     ))
+
 
 # most popular companies
 def company_stats(jobs):
@@ -234,15 +250,16 @@ def company_stats(jobs):
 
     st.dataframe(company_list_search.rename(columns={'count': 'Number of job listings'}), width=700
                  , column_config={
-                    'Company Name': st.column_config.TextColumn(width='large'),
-                    'Number of job listings': st.column_config.TextColumn(width='small')
-                })
+            'Company Name': st.column_config.TextColumn(width='large'),
+            'Number of job listings': st.column_config.TextColumn(width='small')
+        })
+
 
 try:
     job_df_list = []
-    job_data = ['data/Appended_Skills_IS.csv','data/Appended_Skills_SE.csv']
+    job_data = ['data/Appended_Skills_IS.csv', 'data/Appended_Skills_SE.csv']
 
-    #read csv based on degree chosen
+    # read csv based on degree chosen
     if deg == 'LinkedIn Information Security':
         job_df_list.append(pd.read_csv(job_data[0]))
 
@@ -252,7 +269,7 @@ try:
     st.write('#')
 
     main(deg)
-    
+
     jobs_df = pd.concat(job_df_list)
 
     st.write('#')
