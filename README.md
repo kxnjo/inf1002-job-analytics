@@ -27,6 +27,11 @@ Extraction of module descriptions: `get_module_description.py`
 Extract skills: `extract_SIT_skills.py`
 
 
+### `./skills-classifier` - Classifies skills: Hard skills, Soft skills
+Dataset skills preprocessing + Creation of model: `skills_classifier_model.ipynb`
+Classifying Linkedin Skills: `classify_linkedin_skills.py`
+Classify Skill Function File: `classify_skills.py`
+
 
 ### `./Streamlit (integrated)` - Web Application
 Web Application: `SIT Skills and Job Analysis.py`
