@@ -13,6 +13,7 @@ Extraction of LinkedIn jobs: `extract_linkedin_jobs.py`
 ### `./data-cleaner` - Data Cleaning for LinkedIn
 Cleaning of LinkedIn data: `clean_linkedin_jobs.py`
 
+When prompted to enter a folder name, enter "IS" or "SE" to use our sample data
 
 ### - Skills Extraction for LinkedIn
 
