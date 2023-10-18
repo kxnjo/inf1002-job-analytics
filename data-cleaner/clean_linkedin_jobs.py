@@ -17,7 +17,20 @@ def save_data(df, filename):
     df.to_csv(file_path, index=False)
 
 
-def clean_data(df):
+def clean_data():
+    file_load_df_list = []
+    folder_name = input('Enter name of folder to load data from: ')
+    # generate folder path to read files from
+    path = os.path.join(os.getcwd(), folder_name, '*.csv')
+    data = glob.glob(path)
+
+    # read all csv in folder
+    for file in data:
+        print(f'Reading {file}')
+        file_load_df_list.append(pd.read_csv(file))
+    # merge all the individual dataframes (1 per file read)
+    df = pandas.concat(file_load_df_list)
+
     original_size = len(df)
 
     # drop duplicates based on job urn, and drop rows where mandatory attributes are empty
@@ -63,17 +76,4 @@ def clean_data(df):
           f'({original_size - initial_cleaned_size} duplicate or corrupt rows removed)')
 
 
-if __name__ == '__main__':
-    file_load_df_list = []
-    folder_name = input('Enter name of folder to load data from: ')
-    # generate folder path to read files from
-    path = os.path.join(os.getcwd(), folder_name, '*.csv')
-    data = glob.glob(path)
-
-    # read all csv in folder
-    for file in data:
-        print(f'Reading {file}')
-        file_load_df_list.append(pd.read_csv(file))
-    # merge all the individual dataframes (1 per file read)
-    raw_data = pandas.concat(file_load_df_list)
-    clean_data(raw_data)
+clean_data()
