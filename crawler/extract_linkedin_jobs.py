@@ -4,7 +4,6 @@ from bs4 import BeautifulSoup as bs
 import pandas as pd
 from selenium import webdriver
 from selenium import common
-from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from gc import collect as collect_garbage
 from os import path
@@ -16,10 +15,7 @@ def crawl_job_listings(query):
     data = []
     crawled_count = 0
     relevant = 0
-
-    options = Options()
-    options.binary_location = r"C:\Users\denny\Downloads\chrome-win64\chrome-win64\chrome.exe"
-    browser = webdriver.Chrome(options=options)
+    browser = webdriver.Chrome()
 
     # log in to linkedin
     try:
@@ -148,5 +144,4 @@ def crawl_job_listings(query):
     print(f'Results saved to {filename}')
 
 
-if __name__ == '__main__':
-    crawl_job_listings(input('Enter your search term: '))
+crawl_job_listings(input('Enter your search term: '))

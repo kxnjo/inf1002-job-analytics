@@ -7,8 +7,11 @@ Run the following code in your terminal
 `pip install -r requirements.txt`
 
 ## Files to run
-### Data Extraction for LinkedIn
-type your file here in chron order!
+### `./crawler` - Data Extraction for LinkedIn
+Extraction of LinkedIn jobs: `extract_linkedin_jobs.py`
+
+### `./data-cleaner` - Data Cleaning for LinkedIn
+Cleaning of LinkedIn data: `clean_linkedin_jobs.py`
 
 
 ### - Skills Extraction for LinkedIn
