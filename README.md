@@ -5,3 +5,25 @@ The project aims to study the current demands of the job market and perform anal
 ## Packages to install
 Run the following code in your terminal
 `pip install -r requirements.txt`
+
+## Files to run
+### Data Extraction for LinkedIn
+type your file here in chron order!
+
+
+### - Skills Extraction for LinkedIn
+
+
+
+### `./sit_crawler` - Data Extraction for SIT's Website 
+Extraction of courses and modules: `sit_get_modules.py`  
+Extraction of module descriptions: `get_module_description.py`
+
+
+### `./extract_SIT_skills` - Skills Extraction for SIT
+Extract skills: `extract_SIT_skills.py`
+
+
+
+### `./Streamlit (integrated)` - Web Application
+Web Application: `SIT Skills and Job Analysis.py`
