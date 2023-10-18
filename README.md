@@ -15,8 +15,8 @@ Cleaning of LinkedIn data: `clean_linkedin_jobs.py`
 
 When prompted to enter a folder name, enter "IS" or "SE" to use our sample data
 
-### - Skills Extraction for LinkedIn
-
+### `./extract_linkedIn_skills`- Skills Extraction for LinkedIn
+Extract LinkedIn skills: `extract_linkedIn_skills.py`
 
 
 ### `./sit_crawler` - Data Extraction for SIT's Website 
@@ -51,7 +51,7 @@ Run the following code in your terminal
     - [Data extractions of for LinkedIn Jobs](./crawler/extract_linkedin_jobs.py)
     - [Data cleaning for LinkedIn](./data-cleaner/clean_linkedin_jobs.py)
         - When prompted to enter a folder name, enter "IS" or "SE" to use our sample data
-    - [Skills Extraction for LinkedIn](./*) --> TODO
+    - [Skills Extraction for LinkedIn](./extract_linkedIn_skills/extract_linkedIn_skills.py)
 - 🔭 Data Extraction for SIT's Website
     - [Extraction of courses and modules](./sit_crawler/sit_get_modules.py)
     - [Extraction of module descriptions](./sit_crawler/get_module_descriptions.py)
