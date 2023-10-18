@@ -50,7 +50,7 @@ Run the following code in your terminal
 - 🧑‍🔧 LinkedIn Job Extraction
     - [Data extractions of for LinkedIn Jobs](./crawler/extract_linkedin_jobs.py)
     - [Data cleaning for LinkedIn](./data-cleaner/clean_linkedin_jobs.py)
-    When prompted to enter a folder name, enter "IS" or "SE" to use our sample data
+        When prompted to enter a folder name, enter "IS" or "SE" to use our sample data
     - [Skills Extraction for LinkedIn](./*)
 - 🔭 Data Extraction for SIT's Website
     - [Extraction of courses and modules](./sit_crawler/sit_get_modules.py)
@@ -61,4 +61,4 @@ Run the following code in your terminal
     - [Classify LinkedIn Skills](./skills-classifier/classify_linkedin_skills.py)
     - [Classify Skill Function File](./skills-classifier/classify_skills.py)
 - 📊 Data Visualisation Web Application
-    - [Web Application](./Streamlit(integrated)/SIT Skills and Job Analysis.py)
+    - [Web Application]('./Streamlit (integrated)/SIT Skills and Job Analysis.py')
